@@ -91,6 +91,7 @@ html,
 body {
   margin: 0;
   background: #efefef;
+  font-family: PingFangSC-Regular, SFUIDisplay, "Source Han Sans CN", Robot, sans-serif;
 }
 
 .app {
