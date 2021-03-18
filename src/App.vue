@@ -56,10 +56,24 @@ export default defineComponent({
     });
 
     function copyItem(event: MouseEvent) {
+      if (!iptCopy.value) {
+        return;
+      }
+
       const el: HTMLElement = event.currentTarget as any;
-      iptCopy.value!.value = el.textContent!.trim();
-      iptCopy.value!.select();
+      if (!el.textContent) {
+        return;
+      }
+
+      iptCopy.value.value = el.textContent.trim();
+      iptCopy.value.select();
+
       document.execCommand('copy');
+
+      const active: HTMLInputElement = document.activeElement as any;
+
+      active?.blur();
+      window.getSelection()?.removeAllRanges();
     }
 
     return {
