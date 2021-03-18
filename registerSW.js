@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/cloudemoticon-web/sw.js', { scope: '/cloudemoticon-web/' })})}
