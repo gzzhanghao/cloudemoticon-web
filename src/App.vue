@@ -1,78 +1,72 @@
 <template>
   <div class="app">
-    <header class="head">
-      <nav class="nav">
-        <a
-          class="nav-item"
-          href="#/emoticons"
-        >
-          表情
-        </a>
-        <a
-          class="nav-item"
-          href="#/favorites"
-        >
-          收藏
-        </a>
-        <a
-          class="nav-item"
-          href="#/config"
-        >
-          配置
-        </a>
-      </nav>
-    </header>
-
-    <div class="pages">
-      <section class="page">
-        Page1
-      </section>
-      <section class="page">
-        Page2
-      </section>
-      <section class="page">
-        <input>
-      </section>
+    <div
+      v-for="(item, index) in emoticons"
+      :key="index"
+      class="emoticon-item"
+      @click="copyItem($event)"
+    >
+      {{ item }}
     </div>
+    <input
+      ref="iptCopy"
+      class="ipt-copy"
+    >
   </div>
 </template>
 
 <script lang="ts">
 import {
+  computed,
   defineComponent,
-  onBeforeUnmount,
   onMounted,
   reactive,
+  ref,
 } from 'vue';
 
-import { useStore } from './lib/store';
+export interface EmoticonStore {
+  categories: EmoticonCategory[];
+}
+
+export interface EmoticonCategory {
+  name: string;
+  entries: EmoticonEntry[];
+}
+
+export interface EmoticonEntry {
+  emoticon: string;
+  description: string;
+}
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const iptCopy = ref<HTMLInputElement>();
 
-    const route = reactive({
-      path: window.location.hash.slice(1),
+    const state = reactive({
+      state: 'loading',
+      emoticons: [] as string[],
     });
-
-    function onPopState() {
-      route.path = window.location.hash.slice(1);
-    }
 
     onMounted(async () => {
-      window.addEventListener('popstate', onPopState);
+      const res = await fetch('https://raw.githubusercontent.com/cloud-emoticon/store-repos/master/kt-cia.json');
+      const data: EmoticonStore = await res.json();
+      state.emoticons = data.categories
+        .flatMap((cat) => cat.entries)
+        .map((entry) => entry.emoticon);
     });
 
-    onBeforeUnmount(() => {
-      window.removeEventListener('popstate', onPopState);
-    });
-
-    store.addStore('https://raw.githubusercontent.com/cloud-emoticon/store-repos/master/kt-cia.json');
-
-    console.log(BUILD_VERSION);
+    function copyItem(event: MouseEvent) {
+      const el: HTMLElement = event.currentTarget as any;
+      iptCopy.value!.value = el.textContent!.trim();
+      iptCopy.value!.select();
+      document.execCommand('copy');
+    }
 
     return {
-      route,
+      iptCopy,
+      state: computed(() => state.state),
+      emoticons: computed(() => state.emoticons),
+      copyItem,
     };
   },
 });
@@ -84,35 +78,33 @@ body {
   margin: 0;
   background: #efefef;
 }
-</style>
 
-<style scoped>
-.head {
+.app {
+  padding-bottom: 60px;
+}
+
+.emoticon-item {
+  margin: 5px;
+  padding: 20px;
+  text-align: center;
+  background: #fff;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.emoticon-item:active {
+  background: #f8f8f8;
+}
+
+.ipt-copy {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  backdrop-filter: blur(5px);
-  background: #fff7;
-}
-
-.nav {
-  display: flex;
-}
-
-.nav-item {
-  display: inline-block;
-  flex: 0 0 auto;
-  color: #333;
-  text-decoration: none;
-}
-
-.pages {
-  display: flex;
-  margin-top: 20px;
-}
-
-.page {
-  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-100%, -100%)
 }
 </style>
