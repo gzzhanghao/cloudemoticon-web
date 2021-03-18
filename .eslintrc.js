@@ -7,6 +7,9 @@ module.exports = {
       extends: [
         'airbnb-base',
       ],
+      rules: {
+        'import/no-extraneous-dependencies': 0,
+      },
     },
     {
       files: [
@@ -36,6 +39,13 @@ module.exports = {
         parser: '@typescript-eslint/parser',
         project: './tsconfig.eslint.json',
         extraFileExtensions: ['.vue'],
+      },
+      globals: {
+        BUILD_VERSION: false,
+      },
+      rules: {
+        'import/extensions': [2, 'never'],
+        'import/prefer-default-export': 0,
       },
     },
   ],
