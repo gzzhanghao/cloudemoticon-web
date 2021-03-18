@@ -24,20 +24,6 @@ import {
   ref,
 } from 'vue';
 
-export interface EmoticonStore {
-  categories: EmoticonCategory[];
-}
-
-export interface EmoticonCategory {
-  name: string;
-  entries: EmoticonEntry[];
-}
-
-export interface EmoticonEntry {
-  emoticon: string;
-  description: string;
-}
-
 export default defineComponent({
   setup() {
     const iptCopy = ref<HTMLInputElement>();
@@ -48,11 +34,9 @@ export default defineComponent({
     });
 
     onMounted(async () => {
-      const res = await fetch('https://raw.githubusercontent.com/cloud-emoticon/store-repos/master/kt-cia.json');
-      const data: EmoticonStore = await res.json();
-      state.emoticons = data.categories
-        .flatMap((cat) => cat.entries)
-        .map((entry) => entry.emoticon);
+      const res = await fetch('https://raw.githubusercontent.com/bnookala/kao.moji/master/data/kaomoji.json');
+      const data: Record<string, string[]> = await res.json();
+      state.emoticons = Object.values(data).flatMap((v) => v);
     });
 
     function copyItem(event: MouseEvent) {
